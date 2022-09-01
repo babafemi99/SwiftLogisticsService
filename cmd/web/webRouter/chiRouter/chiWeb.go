@@ -59,7 +59,7 @@ func (c chiRouter) SERVE(port string) {
 	signal.Notify(sigChan, os.Kill)
 
 	sig := <-sigChan
-	c.log.Info("Closing now, We've gotten signal: %v\n", sig)
+	c.log.Infof("Closing now, We've gotten signal: %v\n", sig)
 
 	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
 	srv.Shutdown(ctx)
