@@ -17,7 +17,7 @@ func Test_psql_CreateRider(t *testing.T) {
 	psqlData, err := psqlSrc.NewPsqlSrc(log, "postgres://postgres:mysecretpassword@localhost:5432/slsstore")
 	require.NoError(t, err)
 
-	err = psqlData.LoadDB("./../create.sql")
+	err = psqlData.LoadDB("./../../../datasource/create.sql")
 	require.NoError(t, err)
 
 	if err != nil {
