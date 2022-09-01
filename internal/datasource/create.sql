@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS user_table (
                         created_at varchar
 );
 
-CREATE TABLE IF NOT EXISTS "rider_table" (
+CREATE TABLE IF NOT EXISTS rider_table (
                                "rider_id" uuid NOT NULL,
                                "guarantor_id" uuid NOT NULL,
                                "first_name" varchar NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS "rider_table" (
                                PRIMARY KEY ("rider_id", "email", "phone")
 );
 
-CREATE TABLE IF NOT EXISTS "guarantors_table" (
+CREATE TABLE IF NOT EXISTS guarantors_table (
                               "guarantor_id" uuid PRIMARY KEY ,
                               "rider_id" uuid ,
                               "email" varchar,
