@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/require"
 	"reflect"
 	"sls/internal/datasource/psqlSrc"
 	"sls/internal/entity/riderEntity"
@@ -14,6 +15,11 @@ func Test_psql_CreateRider(t *testing.T) {
 	log := logrus.New()
 
 	psqlData, err := psqlSrc.NewPsqlSrc(log, "postgres://postgres:mysecretpassword@localhost:5432/slsstore")
+	require.NoError(t, err)
+
+	err = psqlData.LoadDB("./../create.sql")
+	require.NoError(t, err)
+
 	if err != nil {
 		log.Fatalf("Error Starting Database: %v", err)
 	}

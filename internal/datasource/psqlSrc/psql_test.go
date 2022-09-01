@@ -13,8 +13,8 @@ func TestNewPsqlSrc(t *testing.T) {
 	log := logrus.New()
 	psq, _ := NewPsqlSrc(log, "postgres://postgres:mysecretpassword@localhost:5432/slsstore")
 	err := psq.LoadDB("./../create.sql")
-
 	require.NoError(t, err)
+
 	type args struct {
 		log     *logrus.Logger
 		connStr string
