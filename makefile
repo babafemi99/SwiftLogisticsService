@@ -1,5 +1,5 @@
 postgres :
-	docker run --name sls -p 5432:5432 -e POSTGRES_PASSWORD=mysecretpassword -d postgres
+	docker run --name sls -p 5432:5432 --network slsnet -e POSTGRES_PASSWORD=mysecretpassword -d postgres:14.5-alpine
 
 startdb:
 	docker exec -it sls psql -U postgres
