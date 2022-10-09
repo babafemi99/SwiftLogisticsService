@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/jackc/pgx/v4"
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"time"
 )
@@ -34,24 +34,6 @@ func NewPsqlSrc(log *logrus.Logger, connStr string) (*psqlSrc, error) {
 		log.Fatalf("Error Pinging DB: %v", err)
 	}
 
-	//query, queryErr := ioutil.ReadFile("./internal/datasource/create.sql")
-	//query, queryErr := ioutil.ReadFile("./../../../datasource/create.sql")
-	//dir, err := ioutil.ReadDir("./../../../datasource")
-	//if err != nil {
-	//	log.Fatalf("unable to read db file: %v", err)
-	//}
-	//for _, file := range dir {
-	//	fmt.Println(file.Name())
-	//}
-	//if queryErr != nil {
-	//	log.Fatalf("unable to read db file: %v", err)
-	//}
-
-	//_, err = conn.Exec(ctx, string(query))
-	//if err != nil {
-	//	log.Fatalf("Error Executing migration code %v", err)
-	//}
-
 	log.Info("Database connected successfully")
 	return &psqlSrc{conn: conn}, nil
 }
@@ -67,7 +49,7 @@ func (p *psqlSrc) LoadDB(path string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*2)
 	defer cancel()
 
-	file, queryErr := ioutil.ReadFile(path)
+	file, queryErr := os.ReadFile(path)
 	if queryErr != nil {
 		log.Fatalf("unable to read sql file: %v", queryErr)
 	}

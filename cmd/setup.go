@@ -23,7 +23,7 @@ func Setup() {
 	log := logrus.New()
 
 	// Creating a data source
-	psqlData, err := psqlSrc.NewPsqlSrc(log, "postgres://postgres:mysecretpassword@localhost:5432/slsstore")
+	psqlData, err := psqlSrc.NewPsqlSrc(log, "postgres://postgres:mysecretpassword@postgres:5432/slsstore")
 	if err != nil {
 		log.Fatalf("Error Starting Database: %v", err)
 	}
