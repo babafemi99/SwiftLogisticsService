@@ -3,7 +3,7 @@ services:
   sls-service:
     build:
       context: .
-      dockerfile: sls.dockerfile
+      dockerfile: Dockerfile
     restart: always
     deploy:
       mode: replicated
