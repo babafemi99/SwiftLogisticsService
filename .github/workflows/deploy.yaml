@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out code
+    - name: Check out code.
       uses: actions/checkout@v2
 
     - name: Configure AWS credentials
@@ -22,6 +22,9 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 #        role-to-assume: ${{ secrets.READ_ROLE }}
         aws-region: us-east-1
+
+    - name: load secrets to app.env
+      run: SwiftLogisticsService % aws secretsmanager get-secret-value --secret-id sls --query SecretString --output text |jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > app.env
 
     - name: Login to Amazon ECR
       id: login-ecr
