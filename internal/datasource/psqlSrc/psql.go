@@ -11,7 +11,7 @@ import (
 )
 
 //var (
-//	connectionStr = "postgres://postgres:mysecretpassword@localhost:5432/slsstore"
+//	connectionStr = "postgres://postgres:mysecretpassword@localhost:5432/postgres"
 //)
 
 type psqlSrc struct {
