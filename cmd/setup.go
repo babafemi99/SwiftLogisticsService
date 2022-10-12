@@ -16,14 +16,22 @@ import (
 	"sls/internal/service/tokenService/jwtService"
 	"sls/internal/service/userService"
 	"sls/internal/service/validationService"
+	"sls/util"
 	"time"
 )
 
 func Setup() {
 	log := logrus.New()
-
+	config, err := util.LoadConfig(".")
+	if err != nil {
+		log.Println("unable to load env", err)
+		return
+	}
+	log.Println(config.DBURL)
 	// Creating a data source
-	psqlData, err := psqlSrc.NewPsqlSrc(log, "postgres://postgres:mysecretpassword@postgres:5432/slsstore")
+	//psqlData, err := psqlSrc.NewPsqlSrc(log, "postgres://postgres:mysecretpassword@postgres:5432/slsstore")
+
+	psqlData, err := psqlSrc.NewPsqlSrc(log, config.DBURL)
 	if err != nil {
 		log.Fatalf("Error Starting Database: %v", err)
 	}
