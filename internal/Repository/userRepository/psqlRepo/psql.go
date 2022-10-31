@@ -136,6 +136,6 @@ func (p *psqlRepository) DeactivateAccount(id uuid.UUID) error {
 	return nil
 }
 
-func NewPsqlRepository(conn *pgx.Conn) userRepository.UserRepo {
+func NewPsqlUserRepository(conn *pgx.Conn) userRepository.UserRepo {
 	return &psqlRepository{conn: conn}
 }

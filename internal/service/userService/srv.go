@@ -78,7 +78,6 @@ func (u *userSrv) SignUp(user *userEntity.CreateUser) (*userEntity.UserAccess, *
 }
 
 func (u *userSrv) Login(req *userEntity.LoginReq) (*userEntity.UserAccess, *errorEntity.ErrorRes) {
-
 	//validate request body
 	err := u.vldSrv.Validate(req)
 	if err != nil {

@@ -1,21 +1,24 @@
 package validationService
 
 import (
+	"fmt"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
+	"sls/internal/entity/adminEntity"
 	"sls/internal/entity/userEntity"
 	"testing"
 )
 
 func Test_validationSrv_Validate(t *testing.T) {
 
-	validData := userEntity.UpdateUserReq{
-		UserId:         uuid.New(),
-		Email:          "oo@o.com",
-		Phone:          "+2349098140976",
-		FirstName:      "Bayo",
-		LastName:       "Banda",
-		ProfilePicture: "https://hhasdiude.com",
-	}
+	//validData := userEntity.UpdateUserReq{
+	//	UserId:         uuid.New(),
+	//	Email:          "oo@o.com",
+	//	Phone:          "+2349098140976",
+	//	FirstName:      "Bayo",
+	//	LastName:       "Banda",
+	//	ProfilePicture: "https://hhasdiude.com",
+	//}
 
 	InvalidData := userEntity.UpdateUserReq{
 		UserId:         uuid.New(),
@@ -24,6 +27,12 @@ func Test_validationSrv_Validate(t *testing.T) {
 		FirstName:      "Bayo",
 		LastName:       "Banda",
 		ProfilePicture: "hhasdicom",
+	}
+
+	validData := adminEntity.Availability{
+		Status: "INACTIVE",
+		Start:  "start",
+		Stop:   "stop",
 	}
 
 	type args struct {
@@ -57,4 +66,18 @@ func Test_validationSrv_Validate(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestDPR(t *testing.T) {
+	vld := adminEntity.DPR{
+		Status:     "NIL",
+		Kilometers: 4,
+		Seconds:    456,
+	}
+	v := validationSrv{}
+
+	err := v.ValidateDPR(&vld)
+	fmt.Println(vld)
+
+	require.Nil(t, err)
 }

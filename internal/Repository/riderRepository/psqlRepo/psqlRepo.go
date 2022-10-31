@@ -3,8 +3,8 @@ package psqlRepo
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
+	"log"
 	"sls/internal/Repository/riderRepository"
 	"sls/internal/entity/riderEntity"
 	"time"
@@ -14,31 +14,28 @@ type psql struct {
 	conn *pgx.Conn
 }
 
-func (p *psql) GetById(id uuid.UUID) (*riderEntity.CreateRiderRes, error) {
+func (p *psql) GetById(id string) (*riderEntity.CreateRiderRes, error) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Minute*5)
 	defer cancelFunc()
 
 	var res riderEntity.CreateRiderRes
 
-	queryStmt := fmt.Sprintf("SELECT rider_id, first_name, last_name, email, phone, password, profile_picture, "+
-		"verification_status, account_status FROM rider_table WHERE rider_id='%v';", id)
+	queryStmt := fmt.Sprintf(`SELECT rider_id, first_name, last_name, email, phone_number, password, profile_picture, account_status FROM riders_table WHERE rider_id='%v';`, id)
 
 	row := p.conn.QueryRow(ctx, queryStmt)
-	err := row.Scan(&res.RiderId, &res.FirstName, &res.LastName, &res.Email, &res.Phone, &res.Password, &res.ProfilePicture,
-		&res.VerificationStatus, &res.AccountStatus)
+	err := row.Scan(&res.RiderId, &res.FirstName, &res.LastName, &res.Email, &res.Phone, &res.Password, &res.ProfilePicture, &res.AccountStatus)
 	if err != nil {
 		return nil, err
 	}
 	return &res, nil
 }
 
-func (p *psql) UpdateProfile(req *riderEntity.UpdateRiderReq) (*riderEntity.UpdateRiderReq, error) {
+func (p *psql) UpdateProfile(id string, req *riderEntity.UpdateRiderReq) (*riderEntity.UpdateRiderReq, error) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Minute*2)
 	defer cancelFunc()
 
-	updtStmt := fmt.Sprintf("UPDATE rider_table SET first_name = '%v', last_name ='%v', email='%v', phone='%v', "+
-		"profile_picture='%v', updated_at='%v';", req.FirstName, req.LastName, req.Email, req.Phone,
-		req.ProfilePicture, req.UpdatedAt)
+	updtStmt := fmt.Sprintf(`UPDATE riders_table SET first_name = '%v', last_name ='%v', email='%v', phone_number='%v', profile_picture='%v', date_updated='%v' WHERE rider_id = '%v';`, req.FirstName, req.LastName, req.Email, req.Phone,
+		req.ProfilePicture, req.DateUpdated, id)
 	_, err := p.conn.Exec(ctx, updtStmt)
 	if err != nil {
 		return nil, err
@@ -46,11 +43,11 @@ func (p *psql) UpdateProfile(req *riderEntity.UpdateRiderReq) (*riderEntity.Upda
 	return req, nil
 }
 
-func (p *psql) ChangePassword(id uuid.UUID, password string) error {
+func (p *psql) ChangePassword(id string, password string) error {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Minute*2)
 	defer cancelFunc()
 
-	delStmt := fmt.Sprintf("UPDATE rider_table SET password = '%v' WHERE id='%v' ;", password, id)
+	delStmt := fmt.Sprintf("UPDATE riders_table SET password = '%v' WHERE rider_id='%v' ;", password, id)
 	_, err := p.conn.Exec(ctx, delStmt)
 	if err != nil {
 		return err
@@ -80,7 +77,7 @@ func (p *psql) DeleteAccount(req *riderEntity.DeleteUser) error {
 		return err
 	}
 
-	deleteStmt2 := fmt.Sprintf("DELETE FROM rider_table WHERE rider_id is ='%v'; ", req.RiderId)
+	deleteStmt2 := fmt.Sprintf(`DELETE FROM riders_table WHERE rider_id='%v';`, req.RiderId)
 	_, err = tx.Exec(ctx, deleteStmt2)
 	if err != nil {
 		return err
@@ -95,12 +92,10 @@ func (p *psql) GetByEmail(email string) (*riderEntity.CreateRiderRes, error) {
 
 	var res riderEntity.CreateRiderRes
 
-	queryStmt := fmt.Sprintf("SELECT rider_id, first_name, last_name, email, phone, password, profile_picture, "+
-		"verification_status, account_status FROM rider_table WHERE email='%v';", email)
+	queryStmt := fmt.Sprintf(`SELECT rider_id, first_name, last_name, email, phone_number, password, profile_picture, account_status FROM riders_table WHERE email='%v';`, email)
 
 	row := p.conn.QueryRow(ctx, queryStmt)
-	err := row.Scan(&res.RiderId, &res.FirstName, &res.LastName, &res.Email, &res.Phone, &res.Password, &res.ProfilePicture,
-		&res.VerificationStatus, &res.AccountStatus)
+	err := row.Scan(&res.RiderId, &res.FirstName, &res.LastName, &res.Email, &res.Phone, &res.Password, &res.ProfilePicture, &res.AccountStatus)
 	if err != nil {
 		return nil, err
 	}
@@ -113,12 +108,10 @@ func (p *psql) GetByPhone(phone string) (*riderEntity.CreateRiderRes, error) {
 
 	var res riderEntity.CreateRiderRes
 
-	queryStmt := fmt.Sprintf("SELECT rider_id, first_name, last_name, email, phone, password, profile_picture, "+
-		"verification_status, account_status FROM rider_table WHERE phone='%v';", phone)
+	queryStmt := fmt.Sprintf(`SELECT rider_id, first_name, last_name, email, phone_number, password, profile_picture, account_status FROM riders_table WHERE phone_number='%v';`, phone)
 
 	row := p.conn.QueryRow(ctx, queryStmt)
-	err := row.Scan(&res.RiderId, &res.FirstName, &res.LastName, &res.Email, &res.Phone, &res.Password, &res.ProfilePicture,
-		&res.VerificationStatus, &res.AccountStatus)
+	err := row.Scan(&res.RiderId, &res.FirstName, &res.LastName, &res.Email, &res.Phone, &res.Password, &res.ProfilePicture, &res.AccountStatus)
 	if err != nil {
 		return nil, err
 	}
@@ -141,33 +134,31 @@ func (p *psql) Persist(req *riderEntity.CreateRiderReq) (*riderEntity.CreateRide
 		}
 	}()
 
-	insertStmt := fmt.Sprintf("INSERT INTO guarantors_table (guarantor_id, rider_id, first_name, last_name, email, "+
-		"phone, guarantor_address, guarantor_identification) VALUES ('%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v')",
-		req.Guarantor.GuarantorId, req.RiderId, req.Guarantor.FirstName, req.Guarantor.LastName,
-		req.Guarantor.Email, req.Guarantor.Phone, req.Guarantor.GuarantorAddress, req.Guarantor.GuarantorJob)
-	_, err = tx.Exec(ctx, insertStmt)
-	if err != nil {
-		fmt.Println("here")
-		return nil, err
+	for i, guarantor := range req.Guarantor {
+		insertStmt := fmt.Sprintf("INSERT INTO guarantors_table (guarantor_id, guarantor_first_name, guarantor_last_name, rider_id, guarantor_email, guarantor_phone, guarantor_residential_address, guarantor_official_address, guarantor_jobs) VALUES ('%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v')",
+			guarantor.GuarantorId, guarantor.GuarantorFirstName, guarantor.GuarantorLastName, guarantor.RiderId, guarantor.GuarantorEmail, guarantor.GuarantorPhone, guarantor.GuarantorResidentialAddress, guarantor.GuarantorOfficeAddress, guarantor.GuarantorJob,
+		)
+		_, err = tx.Exec(ctx, insertStmt)
+		if err != nil {
+			log.Printf("inserted guarantor number %v succefully", i)
+			return nil, err
+		}
 	}
 
-	insertStmt2 := fmt.Sprintf("INSERT INTO rider_table (rider_id, guarantor_id, first_name, last_name, email, phone,"+
-		" password, DOB, gender, marital_status, education_level, residential_address, driver_license, identity_card, "+
-		"verification_status, account_status, created_at) VALUES('%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', "+
-		"'%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v')", req.RiderId, req.Guarantor.GuarantorId,
-		req.FirstName, req.LastName, req.Email, req.Phone, req.Password, req.DOB, req.Gender, req.MaritalStatus,
-		req.EducationLevel,
-		req.ResidentialAddress, req.DriverLicense, req.IdentityCard, req.VerificationStatus, req.AccountStatus, req.CreatedAt)
+	insertStmt2 := fmt.Sprintf(` INSERT INTO riders_table (rider_id, first_name, last_name, email, password,phone_number, DOB, gender, marital_status,educational_level, residential_address,driver_license,passport, profile_picture, account_status, date_created) 
+ 		VALUES('%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v')`,
+		req.RiderId, req.FirstName, req.LastName, req.Email, req.Password, req.PhoneNumber, req.DOB, req.Gender, req.MaritalStatus, req.EducationLevel,
+		req.ResidentialAddress, req.DriverLicense, req.Passport, req.ProfilePicture, req.AccountStatus, req.DateCreated)
 
 	_, err = tx.Exec(ctx, insertStmt2)
 	if err != nil {
-		fmt.Println("here 2")
+		log.Printf("errror user: %v", err)
 		return nil, err
 	}
 
 	return req, nil
 }
 
-func NewPsql(conn *pgx.Conn) (riderRepository.RiderRepo, error) {
-	return &psql{conn: conn}, nil
+func NewPsqlRiderRepo(conn *pgx.Conn) riderRepository.RiderRepo {
+	return &psql{conn: conn}
 }

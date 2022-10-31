@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sls-deployment
+  labels:
+    app: swifts-logistics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: swifts-logistics
+  template:
+    metadata:
+      labels:
+        app: swifts-logistics
+    spec:
+      containers:
+        - name: sls-api
+          image: 271369060607.dkr.ecr.us-east-1.amazonaws.com/sls:ba770d6be8a04751ab200777477bf305ae1197b8
+          ports:
+            - containerPort: 8080

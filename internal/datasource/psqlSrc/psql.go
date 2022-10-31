@@ -43,7 +43,7 @@ func (p *psqlSrc) GetConn() *pgx.Conn {
 }
 
 func (p *psqlSrc) CloseConn() {
-	p.CloseConn()
+	p.conn.Close(context.TODO())
 }
 func (p *psqlSrc) LoadDB(path string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*2)
